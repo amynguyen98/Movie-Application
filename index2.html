@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Vote 4 Movies</title>
+    <link href="app.css" rel="stylesheet">
+    <script src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
+	<script>
+		
+	var get_movies = function(){
+		console.log("get the movies");
+		$.getJSON("http://misdemo.temple.edu/vote4movies/movies/",function(data){
+			//console.log(data);
+			for(var i=0;i<data.length;i++){
+				var the_string = "<option value='" + data[i]['movie_id'] +  "'>" + data[i]['movie_name'] + "</option>";
+				$("#my_favorite_movie").append(the_string);
+			}
+		});
+	};
+
+	var cast_vote = function(){
+		console.log("cast a vote");
+		//Question 5B and 5C
+		var the_serialized_data = $("#my_favorite_movie").serialize();
+            
+            //alert(the_serialized_data);
+            //console.log(the_serialized_data);
+            $.post('https://misdemo.temple.edu/vote4movies/vote/',the_serialized_data,function(data){
+                console.log(data);
+				alert(data);
+            }); // end the post
+		
+		
+	};
+	
+	var get_results = function(){
+		console.log("get results");
+		
+		//go to the API endpoint https://misdemo.temple.edu/vote4movies/results/
+		//make sure it ends with "/" ... that is important
+		
+		//make an Ajax call to the endpoint and then append the data into the table.
+
+		//first empty the inner html of the tbody tag
+		//Question 6A
+		$('tbody').html("");
+
+		
+		//now, get the results from the API and append them into the tbody tag
+		// and report the total number of votes
+		//Question 6B and 6C	
+
+	$.getJSON("https://misdemo.temple.edu/vote4movies/results/",function(data){
+	
+	var total = 0;
+
+	for (var i = 0; i < data.length; i++){
+		$("#tbodyid").append('<tr>'+ '<td>' + data[i]['movie_name'] + '</td>' + '<td>' + data[i]['movie_votes'] + "</td>"+ '<td>' +  data[i]['movie_percent'] + '</td>' + "</tr>");
+		
+		total = total + parseInt(data[i]['movie_votes']);
+
+		}
+	$("#total_message").text("the total number of vote is" + total);
+
+	});
+
+		
+	};
+	
+	var navigationEffect = function(tag_to_show){
+		//hide all tags of class content
+		//Question 4B
+		$(".content").hide();
+		
+		//show the content that was chosen
+		//Question 4C
+		$(tag_to_show).show();
+
+		
+	};
+	
+	
+	$(document).ready(function(){
+	
+		//show the default navigation option
+		//question 4A
+		$("#home").show();
+		
+		$('nav a').click(function(){
+			var tag_to_show = $(this).attr('href');
+			console.log(tag_to_show);
+			navigationEffect(tag_to_show);
+
+		});
+		
+		$("#btn_vote").click(function(){
+			cast_vote();
+		});
+		
+		
+		$("#btn_results").click(function(){
+			get_results();
+		});
+		
+		get_movies();
+		
+	});
+	</script>
+</head>
+
+<body>
+    <header><img src="images/movie.png">Vote 4 Movies</header>
+    
+    <nav>
+        <ul>
+            <li><a href="#home">Home</a></li>
+            <li><a href="#vote">Vote</a></li>
+            <li><a href="#results">Results</a></li>
+        </ul>
+    </nav>
+    
+    <div class='content' id='home'>
+        <h2>Home</h2>
+        <p>Vote for your favorite movie here.  See how your vote compares with everyone else.</p>
+    </div>  
+	
+    <div class='content' id='vote'>
+        <h2>Vote for your favorite movie</h2>
+        <form>
+		<label for="my_favorite_movie">Choose your favorite movie</label>
+		<!-- Question 5A //-->
+		<select id="my_favorite_movie" name ="movie_id">
+			<option value="">Please Choose</option>
+		</select>
+		<br><br>
+		<label></label>
+		<input type="button" id="btn_vote" value="Vote">
+		</form>
+
+    </div>
+	
+    <div class='content' id='results'>
+        <h2>Results</h2>
+		<table>
+			<thead>
+				<tr>
+					<th>Movie</th>
+					<th>Number of Votes</th>
+					<th>Percent</th>
+				</tr>
+			</thead>
+			<tbody id ="tbodyid">
+			</tbody>
+		</table>
+		<p id="total_message"></p>
+		<br>		
+		<input type="button" id="btn_results" value="Refresh Results">
+		<br>		
+		
+    </div>
+	
+    <footer>
+	&copy; 2018 Vote4Movies<br>
+	Created for MIS2402
+	</footer>
+</body>
+</html>
